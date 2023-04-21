@@ -3,25 +3,64 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const axios = require("axios");
 const app = express();
+const multer = require("multer");
+const Shopify = require("shopify-api-node");
+const fs = require("fs");
 
 app.use(cors());
-
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
+
+const upload = multer({ dest: "upload" });
 
 const apiKey = "78da25868017033fada453530792e367";
 const password = "d90775dee09bfc7a068f36fe57f8c28d";
 const shopName = "fouad-test-1925";
 const accessToken = "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";
 
+const shopify = new Shopify({
+  shopName: shopName,
+  apiKey: apiKey,
+  password: accessToken,
+  apiVersion: "2021-10",
+});
+
+async function uploadImage(productId, fileObj) {
+  const { filename, path } = await fileObj;
+  const file = fs.readFileSync(path);
+  const base64File = Buffer.from(file).toString("base64");
+
+  try {
+    await shopify.productImage.create(productId, {
+      attachment: base64File,
+      filename: filename,
+    });
+  } catch (err) {
+    console.log("err", err);
+  }
+}
+
 // Handle the form submission
-app.post("/", function (req, res) {
-  console.log("req", req.body);
+app.post("/", upload.single("images"), function (req, res) {
+  console.log("req", req.file);
+  const product = {
+    product: {
+      title: req.body.title,
+      body_html: req.body.body_html,
+      tags: req.body.tags,
+      images: req.file,
+      variants: [
+        {
+          sku: req.body.sku,
+        },
+      ],
+    },
+  };
 
   axios
     .post(
       `https://${apiKey}:${password}@${shopName}.myshopify.com/admin/api/2021-10/products.json`,
-      req.body,
+      product,
       {
         headers: {
           "content-type": "application/json",
@@ -30,10 +69,11 @@ app.post("/", function (req, res) {
       }
     )
     .then((response) => {
-      console.log(response.data);
+      if (!response) return;
+      uploadImage(response.data.product.id, req.file);
     })
     .catch((error) => {
-      console.error(error);
+      // console.error(error);
     });
   // Send a response to the client
   res.send("Form submission successful");
