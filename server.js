@@ -41,8 +41,8 @@ async function uploadImage(productId, fileObj) {
 }
 
 // Handle the form submission
-app.post("/", upload.single("images"), function (req, res) {
-  console.log("req", req.file);
+app.post("/", upload.array("images"), function (req, res) {
+  console.log("req", req.files);
   const product = {
     product: {
       title: req.body.title,
@@ -70,10 +70,12 @@ app.post("/", upload.single("images"), function (req, res) {
     )
     .then((response) => {
       if (!response) return;
-      uploadImage(response.data.product.id, req.file);
+      req.files.forEach((file) => {
+        uploadImage(response.data.product.id, file);
+      });
     })
     .catch((error) => {
-      // console.error(error);
+      console.error(error);
     });
   // Send a response to the client
   res.send("Form submission successful");
