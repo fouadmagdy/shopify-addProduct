@@ -10,6 +10,7 @@ const fs = require("fs");
 app.use(cors());
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
+app.use(express.static("./"));
 
 const upload = multer({ dest: "upload" });
 
@@ -42,7 +43,6 @@ async function uploadImage(productId, fileObj) {
 
 // Handle the form submission
 app.post("/", upload.array("images"), function (req, res) {
-  console.log("req", req.files);
   const product = {
     product: {
       title: req.body.title,
@@ -73,12 +73,11 @@ app.post("/", upload.array("images"), function (req, res) {
       req.files.forEach((file) => {
         uploadImage(response.data.product.id, file);
       });
+      res.redirect("/thank-you.html");
     })
     .catch((error) => {
       console.error(error);
     });
-  // Send a response to the client
-  res.send("Form submission successful");
 });
 
 // Start the server
