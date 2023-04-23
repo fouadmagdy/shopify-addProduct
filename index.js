@@ -9,7 +9,7 @@ const Shopify = require("shopify-api-node");
 const fs = require("fs");
 
 app.use(cors());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static("./"));
 
