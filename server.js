@@ -11,7 +11,7 @@ const fs = require("fs");
 app.use(cors());
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
-app.use(express.static("./public"));
+app.use(express.static("./"));
 
 const port = process.env.PORT || 5000;
 
