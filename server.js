@@ -13,6 +13,8 @@ app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
 app.use(express.static("./public"));
 
+const port = process.env.PORT || 5000;
+
 const upload = multer({ dest: "upload" });
 
 const apiKey = process.env.APIKEY;
@@ -82,6 +84,6 @@ app.post("/create", upload.array("images"), function (req, res) {
 });
 
 // Start the server
-app.listen(5000, function () {
-  console.log("Server listening on port 5000");
+app.listen(port, function () {
+  console.log(`Server listening on ${port}`);
 });
