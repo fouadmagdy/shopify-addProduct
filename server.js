@@ -44,6 +44,12 @@ async function uploadImage(productId, fileObj) {
   }
 }
 
+// Route for the homepage
+app.get("/", (req, res) => {
+  // Send the index.html file
+  res.sendFile("index.html");
+});
+
 // Handle the form submission
 app.post("/create", upload.array("images"), function (req, res) {
   const product = {
