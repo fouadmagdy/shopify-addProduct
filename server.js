@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+require("dotenv").config();
 const cors = require("cors");
 const axios = require("axios");
 const app = express();
@@ -10,14 +11,14 @@ const fs = require("fs");
 app.use(cors());
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
-app.use(express.static("./"));
+app.use(express.static("./public"));
 
 const upload = multer({ dest: "upload" });
 
-const apiKey = "78da25868017033fada453530792e367";
-const password = "d90775dee09bfc7a068f36fe57f8c28d";
-const shopName = "fouad-test-1925";
-const accessToken = "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";
+const apiKey = process.env.APIKEY;
+const password = process.env.PASSWORD;
+const shopName = process.env.SHOPNAME;
+const accessToken = process.env.ACCESSTOKEN;
 
 const shopify = new Shopify({
   shopName: shopName,
@@ -42,7 +43,7 @@ async function uploadImage(productId, fileObj) {
 }
 
 // Handle the form submission
-app.post("/", upload.array("images"), function (req, res) {
+app.post("/create", upload.array("images"), function (req, res) {
   const product = {
     product: {
       title: req.body.title,
@@ -51,7 +52,7 @@ app.post("/", upload.array("images"), function (req, res) {
       images: req.file,
       variants: [
         {
-          sku: req.body.sku,
+          sku: req.body.variants,
         },
       ],
     },
